@@ -20,8 +20,8 @@ type MeshBufferAttribute struct {
 }
 
 type MeshBuffer struct {
-	VertexArray []uint8
-	IndiceArray  []uint16
+	vertexArray []uint8
+	indiceArray  []uint8
 
 	VertexBuffer gl.Buffer
 	IndiceBuffer gl.Buffer
@@ -36,8 +36,8 @@ type MeshBuffer struct {
 
 func NewMeshBuffer(indiceCount, vertexCount, renderOp, buffers int, attr ... MeshBufferAttribute) *MeshBuffer {
 
-	ret := &MeshBuffer{VertexArray: nil,
-	IndiceArray: nil,
+	ret := &MeshBuffer{vertexArray: nil,
+	indiceArray: nil,
 	Buffers: buffers,
 	RenderOp: renderOp,
 	VertexCount:vertexCount,
@@ -48,13 +48,8 @@ func NewMeshBuffer(indiceCount, vertexCount, renderOp, buffers int, attr ... Mes
 
 func (self *MeshBuffer) AllocArrays() {
 	vs := self.CalcVertexSize()
-	self.VertexArray = make([]uint8, 0,vs * self.VertexCount)
-	self.IndiceArray = make([]uint16, 0, self.IndiceCount)
-}
-
-func (self *MeshBuffer) ResetArrays() {
-	self.VertexArray = self.VertexArray[0:0]
-	self.IndiceArray = self.IndiceArray[0:0]
+	self.vertexArray = make([]uint8, 0,vs * self.VertexCount)
+	self.indiceArray = make([]uint8, 0, 2 * self.IndiceCount)
 }
 
 func (self *MeshBuffer) CreateBuffers() {
@@ -71,16 +66,16 @@ func (self *MeshBuffer) Destroy() {
 	self.IndiceBuffer.Delete()
 }
 
-func (self *MeshBuffer) BufferData() {
+func (self *MeshBuffer) CopyArrayToBuffers() {
 	vs := self.CalcVertexSize()
 	self.VertexBuffer.Bind(gl.ARRAY_BUFFER)
 	gl.BufferData(gl.ARRAY_BUFFER, vs * self.VertexCount, 
-		self.VertexArray, gl.STATIC_DRAW)
+		self.vertexArray, gl.STATIC_DRAW)
 	gl.BufferUnbind(gl.ARRAY_BUFFER)
 
 	self.IndiceBuffer.Bind(gl.ELEMENT_ARRAY_BUFFER)
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, 2 * self.IndiceCount, 
-		self.IndiceArray, gl.STATIC_DRAW)
+		self.indiceArray, gl.STATIC_DRAW)
 	gl.BufferUnbind(gl.ELEMENT_ARRAY_BUFFER)
 }
 

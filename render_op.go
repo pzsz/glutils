@@ -74,27 +74,27 @@ func DrawArray(buffer *MeshBuffer) {
 	vertexSize := buffer.CalcVertexSize()
 
 	gl.EnableClientState( gl.VERTEX_ARRAY)
-	gl.VertexPointerTyped(3, gl.FLOAT, vertexSize, buffer.VertexArray)
+	gl.VertexPointerTyped(3, gl.FLOAT, vertexSize, buffer.vertexArray)
 
 	if ((buffer.Buffers & BUF_NORMAL) != 0) {
 		off := buffer.CalcVertexOffset(BUF_NORMAL)
 		gl.EnableClientState( gl.NORMAL_ARRAY)
-		gl.NormalPointerTyped(gl.FLOAT, vertexSize, buffer.VertexArray[off:])
+		gl.NormalPointerTyped(gl.FLOAT, vertexSize, buffer.vertexArray[off:])
 	}
 
 	if ((buffer.Buffers & BUF_COLOUR) != 0) {
 		off := buffer.CalcVertexOffset(BUF_COLOUR)
 		gl.EnableClientState( gl.COLOR_ARRAY);
-		gl.ColorPointerTyped(4, gl.UNSIGNED_BYTE, vertexSize, buffer.VertexArray[off:])
+		gl.ColorPointerTyped(4, gl.UNSIGNED_BYTE, vertexSize, buffer.vertexArray[off:])
 	}
 
 	if ((buffer.Buffers & BUF_TEX_COORD0) != 0) {
 		off := buffer.CalcVertexOffset(BUF_TEX_COORD0)
 		gl.EnableClientState(gl.TEXTURE_COORD_ARRAY);
-		gl.TexCoordPointerTyped(2, gl.FLOAT, vertexSize, buffer.VertexArray[off:])
+		gl.TexCoordPointerTyped(2, gl.FLOAT, vertexSize, buffer.vertexArray[off:])
 	}
 
-	gl.DrawElements(gl.TRIANGLES, buffer.IndiceCount, buffer.IndiceArray);
+	gl.DrawElements(gl.TRIANGLES, buffer.IndiceCount, buffer.indiceArray);
 
 	if ((buffer.Buffers & BUF_NORMAL) != 0) {
 		gl.DisableClientState(gl.NORMAL_ARRAY);

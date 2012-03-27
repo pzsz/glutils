@@ -8,10 +8,14 @@ import (
 var byteOrder binary.ByteOrder = binary.LittleEndian
 
 type MeshBuilder struct {
+	Buffer        *MeshBuffer
+
 	VertexCounter int
 	IndiceCounter int
-	VertexBuf     *bytes.Buffer
-	Buffer        *MeshBuffer
+
+	VertexWriter     *bytes.Buffer
+	IndiceWriter     *bytes.Buffer
+
 	UseVBO        bool
 }
 
@@ -20,16 +24,20 @@ func NewMeshBuilder(vertexCount, indiceCount, renderOp, buffers int, useVBO bool
 
 	buf := NewMeshBuffer(indiceCount, vertexCount, renderOp, buffers, attr...)
 	buf.AllocArrays()
-	vertbuf := bytes.NewBuffer(buf.VertexArray)
-	ret := &MeshBuilder{0, 0,  vertbuf, buf, useVBO}
+	vertex_writer := bytes.NewBuffer(buf.vertexArray)
+	indice_writer := bytes.NewBuffer(buf.indiceArray)
+
+	ret := &MeshBuilder{buf, 0, 0, vertex_writer, indice_writer, useVBO}
 	return ret
 }
 
 func ReuseMeshBuilder(buf *MeshBuffer) *MeshBuilder {
-	buf.ResetArrays()
-	vertbuf := bytes.NewBuffer(buf.VertexArray)
-	buf.IndiceArray = buf.IndiceArray[0:0]
-	return &MeshBuilder{0, 0, vertbuf, buf, buf.HaveVBO()}
+	// Those 3 lines with make arrays empty, but with previous capacity
+	vertex_writer := bytes.NewBuffer(buf.vertexArray[0:0])
+	indice_writer := bytes.NewBuffer(buf.indiceArray[0:0])
+
+	buf.indiceArray = buf.indiceArray[0:0]
+	return &MeshBuilder{buf, 0, 0, vertex_writer, indice_writer, buf.HaveVBO()}
 }
 
 func (self *MeshBuilder) StartVertex() (r int) {
@@ -39,47 +47,46 @@ func (self *MeshBuilder) StartVertex() (r int) {
 }
 
 func (self *MeshBuilder) AddPosition(x,y,z float32) {
-	binary.Write(self.VertexBuf, byteOrder, x)
-	binary.Write(self.VertexBuf, byteOrder, y)
-	binary.Write(self.VertexBuf, byteOrder, z)
+	binary.Write(self.VertexWriter, byteOrder, x)
+	binary.Write(self.VertexWriter, byteOrder, y)
+	binary.Write(self.VertexWriter, byteOrder, z)
 }
 
 func (self *MeshBuilder) AddNormal(x,y,z float32) {
-	binary.Write(self.VertexBuf, byteOrder, x)
-	binary.Write(self.VertexBuf, byteOrder, y)
-	binary.Write(self.VertexBuf, byteOrder, z)
+	binary.Write(self.VertexWriter, byteOrder, x)
+	binary.Write(self.VertexWriter, byteOrder, y)
+	binary.Write(self.VertexWriter, byteOrder, z)
 }
 
-
 func (self *MeshBuilder) AddColour(r,g,b,a byte) {
-	binary.Write(self.VertexBuf, byteOrder, r)
-	binary.Write(self.VertexBuf, byteOrder, g)
-	binary.Write(self.VertexBuf, byteOrder, b)
-	binary.Write(self.VertexBuf, byteOrder, a)
+	binary.Write(self.VertexWriter, byteOrder, r)
+	binary.Write(self.VertexWriter, byteOrder, g)
+	binary.Write(self.VertexWriter, byteOrder, b)
+	binary.Write(self.VertexWriter, byteOrder, a)
 }
 
 func (self *MeshBuilder) AddTexCoord(u, v float32) {
-	binary.Write(self.VertexBuf, byteOrder, u)
-	binary.Write(self.VertexBuf, byteOrder, v)
+	binary.Write(self.VertexWriter, byteOrder, u)
+	binary.Write(self.VertexWriter, byteOrder, v)
 }
 
 func (self *MeshBuilder) AddAttr2F(u, v float32) {
-	binary.Write(self.VertexBuf, byteOrder, u)
-	binary.Write(self.VertexBuf, byteOrder, v)
+	binary.Write(self.VertexWriter, byteOrder, u)
+	binary.Write(self.VertexWriter, byteOrder, v)
 }
 
 func (self *MeshBuilder) AddIndice3(a,b,c int) {
-	self.Buffer.IndiceArray = append(self.Buffer.IndiceArray,uint16(a))
-	self.Buffer.IndiceArray = append(self.Buffer.IndiceArray,uint16(b))
-	self.Buffer.IndiceArray = append(self.Buffer.IndiceArray,uint16(c))
+	binary.Write(self.IndiceWriter, byteOrder, uint16(a))
+	binary.Write(self.IndiceWriter, byteOrder, uint16(b))
+	binary.Write(self.IndiceWriter, byteOrder, uint16(c))
 	self.IndiceCounter += 3
 }
 
 func (self *MeshBuilder) AddIndice4(a,b,c,d int) {
-	self.Buffer.IndiceArray = append(self.Buffer.IndiceArray,uint16(a))
-	self.Buffer.IndiceArray = append(self.Buffer.IndiceArray,uint16(b))
-	self.Buffer.IndiceArray = append(self.Buffer.IndiceArray,uint16(c))
-	self.Buffer.IndiceArray = append(self.Buffer.IndiceArray,uint16(d))
+	binary.Write(self.IndiceWriter, byteOrder, uint16(a))
+	binary.Write(self.IndiceWriter, byteOrder, uint16(b))
+	binary.Write(self.IndiceWriter, byteOrder, uint16(c))
+	binary.Write(self.IndiceWriter, byteOrder, uint16(d))
 	self.IndiceCounter += 4
 }
 
@@ -87,11 +94,11 @@ func (self *MeshBuilder) Finalize() *MeshBuffer {
 	self.Buffer.VertexCount = self.VertexCounter
 	self.Buffer.IndiceCount = self.IndiceCounter
 
-	self.Buffer.VertexArray = self.VertexBuf.Bytes()
-	self.Buffer.IndiceArray = self.Buffer.IndiceArray[0:self.IndiceCounter]
+	self.Buffer.vertexArray = self.VertexWriter.Bytes()
+	self.Buffer.indiceArray = self.IndiceWriter.Bytes()
 
 	if self.UseVBO {
-		self.Buffer.BufferData()
+		self.Buffer.CopyArrayToBuffers()
 	}
 	return self.Buffer
 }
