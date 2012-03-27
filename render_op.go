@@ -94,7 +94,7 @@ func DrawArray(buffer *MeshBuffer) {
 		gl.TexCoordPointerTyped(2, gl.FLOAT, vertexSize, buffer.vertexArray[off:])
 	}
 
-	gl.DrawElements(gl.TRIANGLES, buffer.IndiceCount, buffer.indiceArray);
+	gl.DrawElementsTyped(gl.TRIANGLES, buffer.IndiceCount, gl.UNSIGNED_SHORT, buffer.indiceArray);
 
 	if ((buffer.Buffers & BUF_NORMAL) != 0) {
 		gl.DisableClientState(gl.NORMAL_ARRAY);

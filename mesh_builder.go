@@ -24,6 +24,9 @@ func NewMeshBuilder(vertexCount, indiceCount, renderOp, buffers int, useVBO bool
 
 	buf := NewMeshBuffer(indiceCount, vertexCount, renderOp, buffers, attr...)
 	buf.AllocArrays()
+	if useVBO {
+		buf.AllocBuffers()
+	}
 	vertex_writer := bytes.NewBuffer(buf.vertexArray)
 	indice_writer := bytes.NewBuffer(buf.indiceArray)
 
@@ -76,9 +79,9 @@ func (self *MeshBuilder) AddAttr2F(u, v float32) {
 }
 
 func (self *MeshBuilder) AddIndice3(a,b,c int) {
-	binary.Write(self.IndiceWriter, byteOrder, uint16(a))
-	binary.Write(self.IndiceWriter, byteOrder, uint16(b))
-	binary.Write(self.IndiceWriter, byteOrder, uint16(c))
+	binary.Write(self.IndiceWriter, byteOrder, int16(a))
+	binary.Write(self.IndiceWriter, byteOrder, int16(b))
+	binary.Write(self.IndiceWriter, byteOrder, int16(c))
 	self.IndiceCounter += 3
 }
 

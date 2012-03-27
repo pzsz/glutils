@@ -36,8 +36,7 @@ type MeshBuffer struct {
 
 func NewMeshBuffer(indiceCount, vertexCount, renderOp, buffers int, attr ... MeshBufferAttribute) *MeshBuffer {
 
-	ret := &MeshBuffer{vertexArray: nil,
-	indiceArray: nil,
+	ret := &MeshBuffer{
 	Buffers: buffers,
 	RenderOp: renderOp,
 	VertexCount:vertexCount,
@@ -52,7 +51,7 @@ func (self *MeshBuffer) AllocArrays() {
 	self.indiceArray = make([]uint8, 0, 2 * self.IndiceCount)
 }
 
-func (self *MeshBuffer) CreateBuffers() {
+func (self *MeshBuffer) AllocBuffers() {
 	self.VertexBuffer = gl.GenBuffer()
 	self.IndiceBuffer = gl.GenBuffer()
 }
