@@ -4,11 +4,11 @@ import (
 	"container/list"
 	"github.com/banthar/Go-SDL/sdl"
 	"github.com/pzsz/gl"
-//	"runtime"
-//	"time"
-//	"fmt"
-	"os"
+	//	"runtime"
+	//	"time"
+	//	"fmt"
 	"flag"
+	"os"
 	"runtime/pprof"
 )
 
@@ -24,8 +24,8 @@ type AppState interface {
 	OnKeyDown(key *sdl.Keysym)
 	OnKeyUp(key *sdl.Keysym)
 
-	OnMouseMove(x,y float32)
-	OnMouseClick(x,y float32, button int, down bool)
+	OnMouseMove(x, y float32)
+	OnMouseClick(x, y float32, button int, down bool)
 
 	OnSdlEvent(event *sdl.Event)
 
@@ -34,18 +34,18 @@ type AppState interface {
 
 type AppStateManager struct {
 	StateStack *list.List
-	Screen *sdl.Surface
+	Screen     *sdl.Surface
 }
 
-var AppStateManagerInstance *AppStateManager = &AppStateManager{list.New(),nil}
+var AppStateManagerInstance *AppStateManager = &AppStateManager{list.New(), nil}
 
-func GetManager() (*AppStateManager) {
+func GetManager() *AppStateManager {
 	return AppStateManagerInstance
 }
 
 func (self *AppStateManager) Setup(state AppState, caption string) {
 	if *FLAG_profile {
-		pfile,_ := os.Create("gowar.prof")
+		pfile, _ := os.Create("gowar.prof")
 		pprof.StartCPUProfile(pfile)
 	}
 
@@ -89,7 +89,7 @@ func (self *AppStateManager) Pop() (ret AppState) {
 		self.StateStack.Remove(e)
 	}
 
-	ne := self.StateStack.Back()	
+	ne := self.StateStack.Back()
 	if ne != nil {
 		nstate := ne.Value.(AppState)
 		nstate.Resume()
@@ -188,11 +188,11 @@ func (self *AppStateManager) HandleEvents() (done bool) {
 	return
 }
 
-func (self *AppStateManager) RunLoop() {	
+func (self *AppStateManager) RunLoop() {
 	done := false
 	last_ticks := sdl.GetTicks()
 	for !done {
-//		for ;sdl.GetTicks()-last_ticks < 10;time.Sleep(1) {}
+		//		for ;sdl.GetTicks()-last_ticks < 10;time.Sleep(1) {}
 		current_ticks := sdl.GetTicks()
 		timeStepMS := current_ticks - last_ticks
 		time_step := float32(timeStepMS) / 1000.0
@@ -210,5 +210,3 @@ func (self *AppStateManager) Destroy() {
 		pprof.StopCPUProfile()
 	}
 }
-
-

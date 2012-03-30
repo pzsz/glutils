@@ -9,11 +9,11 @@ import (
 	//	"fmt"
 )
 
-type TexFilterType int;
+type TexFilterType int
 
 const (
-	NEAREST = TexFilterType(1)
-	LINEAR = TexFilterType(2)
+	NEAREST   = TexFilterType(1)
+	LINEAR    = TexFilterType(2)
 	TRILINEAR = TexFilterType(3)
 )
 
@@ -34,7 +34,7 @@ type Texture struct {
 	Width  int
 	Height int
 
-	Setup  TexSetup
+	Setup TexSetup
 }
 
 func (self *Texture) Bind(i int) {
@@ -79,19 +79,19 @@ func (self *Texture) setupParams() {
 		gl.GenerateMipmap(gl.TEXTURE_2D)
 	}
 
-	switch (self.Setup.Filtering) {
+	switch self.Setup.Filtering {
 	case NEAREST:
 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-		break 
+		break
 	case LINEAR:
 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-		break 
+		break
 	case TRILINEAR:
 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
 		gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR_MIPMAP_LINEAR)
-		break 
+		break
 	}
 
 	gl.BindTexture(gl.TEXTURE_2D, 0)

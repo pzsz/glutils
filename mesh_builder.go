@@ -8,19 +8,19 @@ import (
 var byteOrder binary.ByteOrder = binary.LittleEndian
 
 type MeshBuilder struct {
-	Buffer        *MeshBuffer
+	Buffer *MeshBuffer
 
 	VertexCounter int
 	IndiceCounter int
 
-	VertexWriter     *bytes.Buffer
-	IndiceWriter     *bytes.Buffer
+	VertexWriter *bytes.Buffer
+	IndiceWriter *bytes.Buffer
 
-	UseVBO        bool
+	UseVBO bool
 }
 
 func NewMeshBuilder(vertexCount, indiceCount, renderOp, buffers int, useVBO bool,
-	attr ... MeshBufferAttribute) *MeshBuilder {
+	attr ...MeshBufferAttribute) *MeshBuilder {
 
 	buf := NewMeshBuffer(indiceCount, vertexCount, renderOp, buffers, attr...)
 	buf.AllocArrays()
@@ -46,22 +46,22 @@ func ReuseMeshBuilder(buf *MeshBuffer) *MeshBuilder {
 func (self *MeshBuilder) StartVertex() (r int) {
 	r = self.VertexCounter
 	self.VertexCounter++
-	return 
+	return
 }
 
-func (self *MeshBuilder) AddPosition(x,y,z float32) {
+func (self *MeshBuilder) AddPosition(x, y, z float32) {
 	binary.Write(self.VertexWriter, byteOrder, x)
 	binary.Write(self.VertexWriter, byteOrder, y)
 	binary.Write(self.VertexWriter, byteOrder, z)
 }
 
-func (self *MeshBuilder) AddNormal(x,y,z float32) {
+func (self *MeshBuilder) AddNormal(x, y, z float32) {
 	binary.Write(self.VertexWriter, byteOrder, x)
 	binary.Write(self.VertexWriter, byteOrder, y)
 	binary.Write(self.VertexWriter, byteOrder, z)
 }
 
-func (self *MeshBuilder) AddColour(r,g,b,a byte) {
+func (self *MeshBuilder) AddColour(r, g, b, a byte) {
 	binary.Write(self.VertexWriter, byteOrder, r)
 	binary.Write(self.VertexWriter, byteOrder, g)
 	binary.Write(self.VertexWriter, byteOrder, b)
@@ -78,14 +78,14 @@ func (self *MeshBuilder) AddAttr2F(u, v float32) {
 	binary.Write(self.VertexWriter, byteOrder, v)
 }
 
-func (self *MeshBuilder) AddIndice3(a,b,c int) {
+func (self *MeshBuilder) AddIndice3(a, b, c int) {
 	binary.Write(self.IndiceWriter, byteOrder, int16(a))
 	binary.Write(self.IndiceWriter, byteOrder, int16(b))
 	binary.Write(self.IndiceWriter, byteOrder, int16(c))
 	self.IndiceCounter += 3
 }
 
-func (self *MeshBuilder) AddIndice4(a,b,c,d int) {
+func (self *MeshBuilder) AddIndice4(a, b, c, d int) {
 	binary.Write(self.IndiceWriter, byteOrder, uint16(a))
 	binary.Write(self.IndiceWriter, byteOrder, uint16(b))
 	binary.Write(self.IndiceWriter, byteOrder, uint16(c))

@@ -30,7 +30,7 @@ func newShader(filename string) (*Shader, error) {
 	}
 
 	shader.ShaderObject.Source(source)
-	shader.ShaderObject.Compile()	
+	shader.ShaderObject.Compile()
 
 	if shader.ShaderObject.Get(gl.COMPILE_STATUS) == gl.FALSE {
 		info := shader.ShaderObject.GetInfoLog()
