@@ -63,6 +63,8 @@ func (self *MeshBuffer) HaveVBO() bool {
 func (self *MeshBuffer) Destroy() {
 	self.VertexBuffer.Delete()
 	self.IndiceBuffer.Delete()
+	self.vertexArray = nil
+	self.indiceArray = nil
 }
 
 func (self *MeshBuffer) CopyArrayToBuffers() {

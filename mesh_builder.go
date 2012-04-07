@@ -93,6 +93,10 @@ func (self *MeshBuilder) AddIndice4(a, b, c, d int) {
 	self.IndiceCounter += 4
 }
 
+func (self *MeshBuilder) IsEmpty() bool {
+	return self.IndiceCounter == 0
+}
+
 func (self *MeshBuilder) Finalize() *MeshBuffer {
 	self.Buffer.VertexCount = self.VertexCounter
 	self.Buffer.IndiceCount = self.IndiceCounter

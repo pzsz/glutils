@@ -105,6 +105,13 @@ func (self *Camera) SetModelviewOne() {
 	self.ModelviewMatrix = *v.MatrixOne()
 }
 
+func (self *Camera) SetCustomModelview(posx, posy, posz float32, ModelviewMatrix *v.Matrix4) {
+	self.EyePos = v.Vector3f{posx, posy, posz}
+
+	self.ModelviewMatrix = *ModelviewMatrix
+}
+
+
 func (self *Camera) SetModelview(posx, posy, posz, lookx, looky, lookz, upx, upy, upz float32) {
 	self.EyePos = v.Vector3f{posx, posy, posz}
 	self.ViewPos = v.Vector3f{lookx, looky, lookz}
