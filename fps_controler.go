@@ -32,6 +32,21 @@ func (s *FpsController) GetForwardVector() v.Vector3f {
 		float32(-math.Cos(float64(s.horAxis)))}
 }
 
+func (s *FpsController) GetViewVector() v.Vector3f {
+	
+	hor_x := math.Sin(float64(s.horAxis))
+	hor_z := -math.Cos(float64(s.horAxis))
+
+	ver_len := math.Cos(float64(s.verAxis))
+	ver_hor := math.Sin(float64(s.verAxis))
+
+	return v.Vector3f{
+		float32(hor_x * ver_len),
+		float32(-ver_hor),
+		float32(hor_z * ver_len)}
+}
+
+
 func (s *FpsController) GetStrafeVector() v.Vector3f {
 	return v.Vector3f{
 		float32(math.Cos(float64(s.horAxis))),

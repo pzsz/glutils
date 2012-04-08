@@ -52,8 +52,12 @@ func (self *MeshBuffer) AllocArrays() {
 }
 
 func (self *MeshBuffer) AllocBuffers() {
-	self.VertexBuffer = gl.GenBuffer()
-	self.IndiceBuffer = gl.GenBuffer()
+	if self.VertexBuffer == 0 {
+		self.VertexBuffer = gl.GenBuffer()
+	}
+	if self.IndiceBuffer == 0 {
+		self.IndiceBuffer = gl.GenBuffer()
+	}
 }
 
 func (self *MeshBuffer) HaveVBO() bool {
@@ -61,13 +65,20 @@ func (self *MeshBuffer) HaveVBO() bool {
 }
 
 func (self *MeshBuffer) Destroy() {
-	self.VertexBuffer.Delete()
-	self.IndiceBuffer.Delete()
+	if self.VertexBuffer != 0 {
+		self.VertexBuffer.Delete()
+	}
+	if self.IndiceBuffer != 0 {
+		self.IndiceBuffer.Delete()
+	}
+
 	self.vertexArray = nil
 	self.indiceArray = nil
 }
 
-func (self *MeshBuffer) CopyArrayToBuffers() {
+func (self *MeshBuffer) CopyArraysToVBO() {
+	self.AllocBuffers()
+
 	vs := self.CalcVertexSize()
 	self.VertexBuffer.Bind(gl.ARRAY_BUFFER)
 	gl.BufferData(gl.ARRAY_BUFFER, vs*self.VertexCount,

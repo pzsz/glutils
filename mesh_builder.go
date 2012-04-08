@@ -15,22 +15,18 @@ type MeshBuilder struct {
 
 	VertexWriter *bytes.Buffer
 	IndiceWriter *bytes.Buffer
-
-	UseVBO bool
 }
 
-func NewMeshBuilder(vertexCount, indiceCount, renderOp, buffers int, useVBO bool,
+func NewMeshBuilder(vertexCount, indiceCount, renderOp, buffers int,
 	attr ...MeshBufferAttribute) *MeshBuilder {
 
 	buf := NewMeshBuffer(indiceCount, vertexCount, renderOp, buffers, attr...)
 	buf.AllocArrays()
-	if useVBO {
-		buf.AllocBuffers()
-	}
+
 	vertex_writer := bytes.NewBuffer(buf.vertexArray)
 	indice_writer := bytes.NewBuffer(buf.indiceArray)
 
-	ret := &MeshBuilder{buf, 0, 0, vertex_writer, indice_writer, useVBO}
+	ret := &MeshBuilder{buf, 0, 0, vertex_writer, indice_writer}
 	return ret
 }
 
@@ -40,7 +36,7 @@ func ReuseMeshBuilder(buf *MeshBuffer) *MeshBuilder {
 	indice_writer := bytes.NewBuffer(buf.indiceArray[0:0])
 
 	buf.indiceArray = buf.indiceArray[0:0]
-	return &MeshBuilder{buf, 0, 0, vertex_writer, indice_writer, buf.HaveVBO()}
+	return &MeshBuilder{buf, 0, 0, vertex_writer, indice_writer}
 }
 
 func (self *MeshBuilder) StartVertex() (r int) {
@@ -97,15 +93,15 @@ func (self *MeshBuilder) IsEmpty() bool {
 	return self.IndiceCounter == 0
 }
 
-func (self *MeshBuilder) Finalize() *MeshBuffer {
+func (self *MeshBuilder) Finalize(useVBO bool) *MeshBuffer {
 	self.Buffer.VertexCount = self.VertexCounter
 	self.Buffer.IndiceCount = self.IndiceCounter
 
 	self.Buffer.vertexArray = self.VertexWriter.Bytes()
 	self.Buffer.indiceArray = self.IndiceWriter.Bytes()
 
-	if self.UseVBO {
-		self.Buffer.CopyArrayToBuffers()
+	if useVBO {
+		self.Buffer.CopyArraysToVBO()
 	}
 	return self.Buffer
 }

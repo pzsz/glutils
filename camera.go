@@ -157,6 +157,21 @@ func (self *Camera) GetViewRay(x, y float32) v.Vector3f {
 		self.EyePos.Z - float32(mz)}
 }
 
+// Cast viewport position to world coordinates placed on sphere of 
+// given radius
+func (self *Camera) ScreenToSphere(x, y, radius float32) v.Vector3f {
+	viewRay := self.GetViewRay(x, y)
+
+	if viewRay.Z == 0 {
+		return v.Vector3f{}
+	}
+
+	viewRay.NormalizeIP()
+	viewRay.MulIP(radius)
+	return self.EyePos.Sub(viewRay)
+}
+
+
 func (self *Camera) ScreenToPlaneXY(x, y, z float32) v.Vector2f {
 	viewRay := self.GetViewRay(x, y)
 
