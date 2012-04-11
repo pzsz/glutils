@@ -4,9 +4,6 @@ import (
 	"container/list"
 	"github.com/banthar/Go-SDL/sdl"
 	"github.com/pzsz/gl"
-	//	"runtime"
-	//	"time"
-	//	"fmt"
 	"flag"
 	"os"
 	"runtime/pprof"
@@ -24,7 +21,7 @@ type AppState interface {
 	OnKeyDown(key *sdl.Keysym)
 	OnKeyUp(key *sdl.Keysym)
 
-	OnMouseMove(x, y float32)
+	OnMouseMove(x, y, dx, dy float32)
 	OnMouseClick(x, y float32, button int, down bool)
 
 	OnSdlEvent(event *sdl.Event)
@@ -33,11 +30,13 @@ type AppState interface {
 }
 
 type AppStateManager struct {
-	StateStack *list.List
-	Screen     *sdl.Surface
+	StateStack              *list.List
+	Screen                  *sdl.Surface
+	LastMouseX, LastMouseY  float32    
+	MouseSampleTaken        bool
 }
 
-var AppStateManagerInstance *AppStateManager = &AppStateManager{list.New(), nil}
+var AppStateManagerInstance *AppStateManager = &AppStateManager{StateStack: list.New()}
 
 func GetManager() *AppStateManager {
 	return AppStateManagerInstance
@@ -165,8 +164,22 @@ func (self *AppStateManager) HandleEvents() (done bool) {
 		case *sdl.MouseMotionEvent:
 			if running_state != nil {
 				mevent := event.(*sdl.MouseMotionEvent)
-				running_state.OnMouseMove(float32(mevent.X),
-					float32(mevent.Y))
+				dx, dy := float32(0), float32(0)
+				fx, fy := float32(mevent.X), float32(mevent.Y)
+
+				if self.MouseSampleTaken {
+					dx = fx - self.LastMouseX
+					dy = fy - self.LastMouseY
+				} else {
+					self.MouseSampleTaken = true
+				}
+
+				running_state.OnMouseMove(
+					float32(mevent.X),
+					float32(mevent.Y), dx, dy)
+
+				self.LastMouseX = fx
+				self.LastMouseY = fy
 			}
 			break
 		case *sdl.MouseButtonEvent:
