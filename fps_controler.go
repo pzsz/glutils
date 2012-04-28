@@ -9,8 +9,8 @@ type FpsController struct {
 	Camera  *Camera
 	Pos     v.Vector3f
 
-	horAxis float32
-        verAxis float32
+	HorAxis float32
+        VerAxis float32
 }
 
 func NewFpsController(camera *Camera) *FpsController {
@@ -27,18 +27,18 @@ func (s *FpsController) MoveBy(forward, strafe float32) {
 
 func (s *FpsController) GetForwardVector() v.Vector3f {
 	return v.Vector3f{
-		float32(math.Sin(float64(s.horAxis))),
+		float32(math.Sin(float64(-s.HorAxis))),
 		0,
-		float32(-math.Cos(float64(s.horAxis)))}
+		float32(-math.Cos(float64(-s.HorAxis)))}
 }
 
 func (s *FpsController) GetViewVector() v.Vector3f {
 	
-	hor_x := math.Sin(float64(s.horAxis))
-	hor_z := -math.Cos(float64(s.horAxis))
+	hor_x := math.Sin(float64(-s.HorAxis))
+	hor_z := -math.Cos(float64(-s.HorAxis))
 
-	ver_len := math.Cos(float64(s.verAxis))
-	ver_hor := math.Sin(float64(s.verAxis))
+	ver_len := math.Cos(float64(-s.VerAxis))
+	ver_hor := math.Sin(float64(-s.VerAxis))
 
 	return v.Vector3f{
 		float32(hor_x * ver_len),
@@ -49,33 +49,33 @@ func (s *FpsController) GetViewVector() v.Vector3f {
 
 func (s *FpsController) GetStrafeVector() v.Vector3f {
 	return v.Vector3f{
-		float32(math.Cos(float64(s.horAxis))),
+		float32(math.Cos(float64(-s.HorAxis))),
 		0,
-		float32(math.Sin(float64(s.horAxis)))}
+		float32(math.Sin(float64(-s.HorAxis)))}
 }
 
 
 func (s *FpsController) RotateBy(deltaHor, deltaVer float32) {
-	s.horAxis += deltaHor
-	if s.horAxis > 2*math.Pi {
-		s.horAxis -= 2*math.Pi
+	s.HorAxis += deltaHor
+	if s.HorAxis > 2*math.Pi {
+		s.HorAxis -= 2*math.Pi
 	}
-	if s.horAxis < 0 {
-		s.horAxis += 2*math.Pi
+	if s.HorAxis < 0 {
+		s.HorAxis += 2*math.Pi
 	}
 
-	s.verAxis += deltaVer
-	if s.verAxis > 0.49*math.Pi {
-		s.verAxis = 0.49*math.Pi
+	s.VerAxis += deltaVer
+	if s.VerAxis > 0.49*math.Pi {
+		s.VerAxis = 0.49*math.Pi
 	}
-	if s.verAxis < -0.49*math.Pi {
-		s.verAxis = -0.49*math.Pi
+	if s.VerAxis < -0.49*math.Pi {
+		s.VerAxis = -0.49*math.Pi
 	}
 }
 
 func (s *FpsController) SetupCamera() {
-	hor := v.MatrixRotate(v.Angle(s.horAxis), 0, 1, 0)
-	ver := v.MatrixRotate(v.Angle(s.verAxis), 1, 0, 0)
+	hor := v.MatrixRotate(v.Angle(-s.HorAxis), 0, 1, 0)
+	ver := v.MatrixRotate(v.Angle(-s.VerAxis), 1, 0, 0)
 	tr := v.MatrixTranslate(-s.Pos.X, -s.Pos.Y, -s.Pos.Z)
 
 	rot := ver.Mul(hor)

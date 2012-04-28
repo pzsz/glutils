@@ -8,8 +8,6 @@ import (
 var byteOrder binary.ByteOrder = binary.LittleEndian
 
 type MeshBuilder struct {
-	Buffer *MeshBuffer
-
 	VertexCounter int
 	IndiceCounter int
 
@@ -17,16 +15,11 @@ type MeshBuilder struct {
 	IndiceWriter *bytes.Buffer
 }
 
-func NewMeshBuilder(vertexCount, indiceCount, renderOp, buffers int,
-	attr ...MeshBufferAttribute) *MeshBuilder {
+func NewMeshBuilder() *MeshBuilder {
+	vertex_writer := bytes.NewBuffer(nil)
+	indice_writer := bytes.NewBuffer(nil)
 
-	buf := NewMeshBuffer(indiceCount, vertexCount, renderOp, buffers, attr...)
-	buf.AllocArrays()
-
-	vertex_writer := bytes.NewBuffer(buf.vertexArray)
-	indice_writer := bytes.NewBuffer(buf.indiceArray)
-
-	ret := &MeshBuilder{buf, 0, 0, vertex_writer, indice_writer}
+	ret := &MeshBuilder{0, 0, vertex_writer, indice_writer}
 	return ret
 }
 
@@ -34,9 +27,7 @@ func ReuseMeshBuilder(buf *MeshBuffer) *MeshBuilder {
 	// Those 3 lines with make arrays empty, but with previous capacity
 	vertex_writer := bytes.NewBuffer(buf.vertexArray[0:0])
 	indice_writer := bytes.NewBuffer(buf.indiceArray[0:0])
-
-	buf.indiceArray = buf.indiceArray[0:0]
-	return &MeshBuilder{buf, 0, 0, vertex_writer, indice_writer}
+	return &MeshBuilder{0, 0, vertex_writer, indice_writer}
 }
 
 func (self *MeshBuilder) StartVertex() (r int) {
@@ -93,15 +84,14 @@ func (self *MeshBuilder) IsEmpty() bool {
 	return self.IndiceCounter == 0
 }
 
-func (self *MeshBuilder) Finalize(useVBO bool) *MeshBuffer {
-	self.Buffer.VertexCount = self.VertexCounter
-	self.Buffer.IndiceCount = self.IndiceCounter
+func (self *MeshBuilder) Finalize(useVBO bool, buffer *MeshBuffer) {
+	buffer.VertexCount = self.VertexCounter
+	buffer.IndiceCount = self.IndiceCounter
 
-	self.Buffer.vertexArray = self.VertexWriter.Bytes()
-	self.Buffer.indiceArray = self.IndiceWriter.Bytes()
+	buffer.vertexArray = self.VertexWriter.Bytes()
+	buffer.indiceArray = self.IndiceWriter.Bytes()
 
 	if useVBO {
-		self.Buffer.CopyArraysToVBO()
+		buffer.CopyArraysToVBO()
 	}
-	return self.Buffer
 }

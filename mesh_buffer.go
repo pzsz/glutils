@@ -51,6 +51,11 @@ func (self *MeshBuffer) AllocArrays() {
 	self.indiceArray = make([]uint8, 0, 2*self.IndiceCount)
 }
 
+func (self *MeshBuffer) GetArrays() (vertexArray, indiceArray []uint8) {
+	vertexArray, indiceArray = self.vertexArray, self.indiceArray
+	return
+}
+
 func (self *MeshBuffer) AllocBuffers() {
 	if self.VertexBuffer == 0 {
 		self.VertexBuffer = gl.GenBuffer()

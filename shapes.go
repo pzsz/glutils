@@ -5,6 +5,66 @@ import (
 	v "github.com/pzsz/lin3dmath"
 )
 
+func BuildCubeBuffer(halfSize v.Vector3f) *MeshBuffer {
+	buffer := NewMeshBuffer(8, 6*6, RENDER_POLYGONS, 0)
+	build := ReuseMeshBuilder(buffer)
+
+	//   7----6
+	//  /|   /|
+	// 4----5 |
+	// | |  | |
+	// | 3--|-2
+	// |/   |/
+	// 0----1
+	
+	i0 := build.StartVertex()
+	build.AddPosition(-halfSize.X, -halfSize.Y, -halfSize.Z)
+
+	i1 := build.StartVertex()
+	build.AddPosition(halfSize.X, -halfSize.Y, -halfSize.Z)
+
+	i2 := build.StartVertex()
+	build.AddPosition(halfSize.X, halfSize.Y, -halfSize.Z)
+
+	i3 := build.StartVertex()
+	build.AddPosition(-halfSize.X, halfSize.Y, -halfSize.Z)
+
+	i4 := build.StartVertex()
+	build.AddPosition(-halfSize.X, -halfSize.Y, halfSize.Z)
+
+	i5 := build.StartVertex()
+	build.AddPosition(halfSize.X, -halfSize.Y, halfSize.Z)
+
+	i6 := build.StartVertex()
+	build.AddPosition(halfSize.X, halfSize.Y, halfSize.Z)
+
+	i7 := build.StartVertex()
+	build.AddPosition(-halfSize.X, halfSize.Y, halfSize.Z)
+
+	build.AddIndice3(i0, i1, i5)
+	build.AddIndice3(i5, i4, i0)
+
+	build.AddIndice3(i1, i2, i6)
+	build.AddIndice3(i6, i5, i1)
+
+	build.AddIndice3(i6, i2, i3)
+	build.AddIndice3(i3, i7, i6)
+
+	build.AddIndice3(i3, i0, i4)
+	build.AddIndice3(i4, i7, i3)
+
+	build.AddIndice3(i4, i5, i6)
+	build.AddIndice3(i6, i7, i4)
+
+	build.AddIndice3(i0, i3, i2)
+	build.AddIndice3(i2, i1, i0)
+
+	build.Finalize(true, buffer)
+
+	return buffer
+}
+
+
 func RenderLine(camera *Camera, m *v.Matrix4, from, to v.Vector3f, colour Colour) {
 	camera.LoadProjection()
 	camera.LoadModelview(m)
