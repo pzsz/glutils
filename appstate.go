@@ -34,6 +34,8 @@ type AppStateManager struct {
 	Screen                  *sdl.Surface
 	LastMouseX, LastMouseY  float32    
 	MouseSampleTaken        bool
+
+	FPSMouseModeEnabled     bool
 }
 
 var AppStateManagerInstance *AppStateManager = &AppStateManager{StateStack: list.New()}
@@ -67,6 +69,15 @@ func (self *AppStateManager) Setup(state AppState, caption string) {
 	GetViewport().SetScreenSize(float32(self.Screen.W), float32(self.Screen.H))
 
 	self.Push(state)
+}
+
+func (self *AppStateManager) FPSMouseMode(on bool) {
+	self.FPSMouseModeEnabled = on
+	if on {
+		sdl.ShowCursor(0)
+	} else {
+		sdl.ShowCursor(1)
+	}
 }
 
 func (self *AppStateManager) Push(state AppState) {
@@ -178,8 +189,16 @@ func (self *AppStateManager) HandleEvents() (done bool) {
 					float32(mevent.X),
 					float32(mevent.Y), dx, dy)
 
-				self.LastMouseX = fx
-				self.LastMouseY = fy
+				if self.FPSMouseModeEnabled {
+					sdl.EventState(sdl.MOUSEMOTION, sdl.IGNORE)
+					sdl.WarpMouse(int(self.Screen.W/2), int(self.Screen.H/2))
+					sdl.EventState(sdl.MOUSEMOTION, sdl.ENABLE)
+					self.LastMouseX = float32(self.Screen.W/2)
+					self.LastMouseY = float32(self.Screen.H/2)
+				} else {
+					self.LastMouseX = fx
+					self.LastMouseY = fy
+				}
 			}
 			break
 		case *sdl.MouseButtonEvent:
